@@ -5,11 +5,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Zyra.lk | Track Your Order</title>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 :root {
   --maroon:#681F32;
-  --yellow:#EBD38F;
+  --gold:#EBD38F;
   --ivory:#F5EBD8;
   --white:#fffdf8;
   --ink:#34252a;
@@ -28,23 +30,26 @@ header{
   display:flex;
   justify-content:space-between;
   align-items:center;
+  flex-wrap:wrap;
+  gap:12px;
 }
 .logo{
   font-family:Georgia,serif;
   font-size:27px;
-  letter-spacing:2px;
+  letter-spacing:3px;
 }
+nav{display:flex;gap:8px}
 nav button{
   background:transparent;
-  border:1px solid var(--yellow);
-  color:var(--yellow);
-  padding:10px 16px;
+  border:1px solid var(--gold);
+  color:var(--gold);
+  padding:10px 15px;
   border-radius:5px;
   cursor:pointer;
 }
 main{
   max-width:850px;
-  margin:55px auto;
+  margin:45px auto;
   padding:20px;
 }
 .hero{text-align:center;margin-bottom:35px}
@@ -54,25 +59,32 @@ main{
   font-size:42px;
   font-weight:normal;
 }
-.hero p{line-height:1.7;color:#76636a}
+.hero p{line-height:1.7;color:#806f73}
 .card{
   background:var(--white);
-  padding:30px;
+  padding:28px;
   border-radius:12px;
   box-shadow:0 5px 25px #681f3210;
   margin-bottom:22px;
 }
+h2,h3{color:var(--maroon)}
+label{
+  display:block;
+  font-size:12px;
+  font-weight:bold;
+  color:var(--maroon);
+  margin-top:10px;
+}
 input,select,textarea{
   width:100%;
   padding:13px;
-  margin:8px 0 16px;
+  margin:8px 0 15px;
   border:1px solid #d8c9b8;
   border-radius:6px;
   background:white;
   font-size:15px;
 }
 textarea{min-height:75px}
-label{font-size:13px;font-weight:bold;color:var(--maroon)}
 .primary{
   background:var(--maroon);
   color:white;
@@ -84,13 +96,14 @@ label{font-size:13px;font-weight:bold;color:var(--maroon)}
   font-weight:bold;
 }
 .secondary{
-  background:var(--yellow);
+  background:var(--gold);
   color:var(--maroon);
   border:0;
-  padding:11px 16px;
+  padding:11px 15px;
   border-radius:6px;
   cursor:pointer;
   font-weight:bold;
+  margin:4px 3px 4px 0;
 }
 .hidden{display:none!important}
 .status{
@@ -103,122 +116,212 @@ label{font-size:13px;font-weight:bold;color:var(--maroon)}
   font-size:13px;
 }
 .event{
-  border-left:2px solid var(--yellow);
+  border-left:2px solid var(--gold);
   padding:5px 0 18px 18px;
   margin-left:5px;
 }
 .event strong{color:var(--maroon)}
-.small{font-size:13px;color:#806f73}
+.small{font-size:13px;color:#806f73;line-height:1.6}
 .order{
   border:1px solid #eadfce;
   padding:17px;
   border-radius:8px;
   margin:12px 0;
+  overflow-wrap:anywhere;
 }
-.order button{margin:5px 4px 0 0}
+.message{font-size:13px;margin-top:10px}
 footer{
   text-align:center;
   padding:25px;
   color:#806f73;
   font-size:12px;
 }
+@media(max-width:500px){
+  .hero h1{font-size:33px}
+  header{padding:18px}
+  .card{padding:20px}
+  nav button{padding:9px}
+}
 </style>
 </head>
+
 <body>
 
 <header>
   <div class="logo">ZYRA.LK</div>
   <nav>
-    <button onclick="showAdmin()">ADMIN</button>
-    <button onclick="showCustomer()">TRACK ORDER</button>
+    <button id="adminNav">ADMIN</button>
+    <button id="customerNav">TRACK ORDER</button>
   </nav>
 </header>
 
 <main>
+
+<!-- CUSTOMER PAGE -->
+
 <section id="customerPage">
+
   <div class="hero">
     <h1>Hello, Beautiful.</h1>
-    <p>Something lovely is on its way to you.<br>
-    Every little parcel carries a little happiness. Let's find yours.</p>
+    <p>
+      Something lovely is on its way to you.<br>
+      Every little parcel carries a little happiness.
+    </p>
   </div>
 
   <div class="card">
-    <h2 style="color:var(--maroon)">Track your order</h2>
-    <p class="small">Enter your Zyra tracking ID below.</p>
+    <h2>Track Your Order</h2>
+    <p class="small">
+      Enter your unique Zyra tracking ID below.
+    </p>
+
     <label>YOUR TRACKING ID</label>
-    <input id="trackingInput" placeholder="ZYR-2026-XXXXX">
-    <button class="primary" onclick="trackOrder()">TRACK MY ORDER</button>
+    <input id="trackingInput"
+      placeholder="ZYR-2026-XXXXXXXXXX">
+
+    <button class="primary" id="trackButton">
+      TRACK MY ORDER
+    </button>
+
     <p id="trackMessage" class="small"></p>
   </div>
 
   <div id="trackingResult" class="card hidden"></div>
+
 </section>
 
+
+<!-- ADMIN PAGE -->
+
 <section id="adminPage" class="hidden">
+
   <div class="hero">
     <h1>Admin Portal</h1>
     <p>Manage Zyra.lk customer deliveries.</p>
   </div>
 
+  <!-- LOGIN -->
+
   <div id="loginCard" class="card">
+
     <h2>Admin Login</h2>
+
     <label>EMAIL</label>
-    <input id="adminEmail" type="email" placeholder="Admin email">
+    <input id="adminEmail" type="email"
+      placeholder="Admin email">
+
     <label>PASSWORD</label>
-    <input id="adminPassword" type="password" placeholder="Password">
-    <button class="primary" onclick="login()">LOGIN</button>
+    <input id="adminPassword" type="password"
+      placeholder="Password">
+
+    <button class="primary" id="loginButton">
+      LOGIN
+    </button>
+
     <p id="loginMessage" class="small"></p>
+
   </div>
 
+
+  <!-- DASHBOARD -->
+
   <div id="dashboard" class="hidden">
+
+    <!-- CREATE ORDER -->
+
     <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
+
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px">
         <h2>Create New Order</h2>
-        <button class="secondary" onclick="logout()">Logout</button>
+        <button class="secondary" id="logoutButton">
+          Logout
+        </button>
       </div>
+
+      <label>CUSTOMER NAME</label>
+      <input id="customerName"
+        placeholder="Enter customer full name">
 
       <label>COURIER</label>
       <select id="courier">
         <option>Royal Express</option>
         <option>Straightway Couriers</option>
+        <option>Other</option>
       </select>
 
       <label>PRIVATE COURIER REFERENCE</label>
-      <input id="courierReference" placeholder="Courier reference (admin only)">
+      <input id="courierReference"
+        placeholder="Admin only">
 
       <label>INITIAL LOCATION</label>
-      <input id="location" placeholder="e.g. Colombo">
+      <input id="location"
+        placeholder="e.g. Colombo">
 
       <label>ESTIMATED DELIVERY</label>
       <input id="eta" type="date">
 
       <label>ORDER NOTE</label>
-      <textarea id="note" placeholder="Optional delivery note"></textarea>
+      <textarea id="note"
+        placeholder="Optional delivery note"></textarea>
 
-      <button class="primary" onclick="createOrder()">CREATE ORDER</button>
-      <p id="createMessage" class="small"></p>
+      <button class="primary" id="createButton">
+        CREATE ORDER
+      </button>
+
+      <p id="createMessage" class="message small"></p>
+
     </div>
+
+
+    <!-- MANAGE ORDERS -->
 
     <div class="card">
+
       <h2>Manage Orders</h2>
-      <input id="searchOrder" placeholder="Search tracking ID..." oninput="renderOrders()">
-      <button class="secondary" onclick="loadOrders()">Refresh Orders</button>
+
+      <input id="searchOrder"
+        placeholder="Search customer name or tracking ID">
+
+      <button class="secondary" id="refreshButton">
+        Refresh Orders
+      </button>
+
       <div id="ordersList"></div>
+
     </div>
+
   </div>
+
 </section>
+
 </main>
 
-<footer>© 2026 Zyra.lk · Every parcel, a little happiness.</footer>
+<footer>
+  © 2026 Zyra.lk · Every parcel, a little happiness.
+</footer>
+
 
 <script>
-const SUPABASE_URL = "https://rouysaipjmzmvoegtign.supabase.co";
-const SUPABASE_KEY = "sb_publishable_XmZ0RqmzN4uAEtAhJcFgMg_CQ-HWv2D";
+
+// =====================================
+// SUPABASE CONFIGURATION
+// =====================================
+
+const SUPABASE_URL =
+  "https://rouysaipjmzmvoegtign.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_XmZ0RqmzN4uAEtAhJcFgMg_CQ-HWv2D";
 
 const db = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_KEY
 );
+
+
+// =====================================
+// ORDER STATUSES
+// =====================================
 
 const statuses = [
   "Order Confirmed",
@@ -236,290 +339,587 @@ const statuses = [
 
 let orders = [];
 
+
+// =====================================
+// NAVIGATION
+// =====================================
+
 function showCustomer(){
-  document.getElementById("customerPage").classList.remove("hidden");
-  document.getElementById("adminPage").classList.add("hidden");
+
+  document.getElementById("customerPage")
+    .classList.remove("hidden");
+
+  document.getElementById("adminPage")
+    .classList.add("hidden");
+
 }
 
 function showAdmin(){
-  document.getElementById("customerPage").classList.add("hidden");
-  document.getElementById("adminPage").classList.remove("hidden");
+
+  document.getElementById("customerPage")
+    .classList.add("hidden");
+
+  document.getElementById("adminPage")
+    .classList.remove("hidden");
+
 }
+
+document.getElementById("adminNav").onclick = showAdmin;
+document.getElementById("customerNav").onclick = showCustomer;
+
+
+// =====================================
+// ADMIN LOGIN
+// =====================================
 
 async function login(){
-  const email = document.getElementById("adminEmail").value.trim();
-  const password = document.getElementById("adminPassword").value;
 
-  const {error} = await db.auth.signInWithPassword({email,password});
+  const email =
+    document.getElementById("adminEmail").value.trim();
 
-  if(error){
-    document.getElementById("loginMessage").textContent = error.message;
-    return;
-  }
+  const password =
+    document.getElementById("adminPassword").value;
 
-  document.getElementById("loginCard").classList.add("hidden");
-  document.getElementById("dashboard").classList.remove("hidden");
-  loadOrders();
-}
+  const msg =
+    document.getElementById("loginMessage");
 
-async function logout(){
-  await db.auth.signOut();
-  document.getElementById("dashboard").classList.add("hidden");
-  document.getElementById("loginCard").classList.remove("hidden");
-}
+  msg.textContent = "Signing in...";
 
-async function createOrder(){
-  const courier = document.getElementById("courier").value;
-  const courierReference = document.getElementById("courierReference").value.trim();
-  const location = document.getElementById("location").value.trim();
-  const eta = document.getElementById("eta").value;
-  const note = document.getElementById("note").value.trim();
-
-  const trackingId = "ZYR-2026-" +
-    crypto.randomUUID().replace(/-/g,"").slice(0,5).toUpperCase();
-
-  const {data,error} = await db.from("zyra_orders").insert({
-    tracking_id:trackingId,
-    courier,
-    courier_reference:courierReference,
-    status:"Order Confirmed",
-    location,
-    estimated_delivery:eta,
-    note
-  }).select().single();
-
-  if(error){
-    document.getElementById("createMessage").textContent = error.message;
-    return;
-  }
-
-  const {error:eventError} = await db.from("zyra_tracking_events").insert({
-    order_id:data.id,
-    status:"Order Confirmed",
-    location,
-    note
+  const {error} = await db.auth.signInWithPassword({
+    email,
+    password
   });
 
-  if(eventError){
-    document.getElementById("createMessage").textContent =
-      "Order created, but its first history event could not be saved: " + eventError.message;
+  if(error){
+    msg.textContent = error.message;
     return;
   }
 
-  document.getElementById("createMessage").textContent =
-    "Order created successfully: " + trackingId;
+  document.getElementById("loginCard")
+    .classList.add("hidden");
 
-  document.getElementById("courierReference").value="";
-  document.getElementById("location").value="";
-  document.getElementById("eta").value="";
-  document.getElementById("note").value="";
+  document.getElementById("dashboard")
+    .classList.remove("hidden");
 
   loadOrders();
+
 }
 
+document.getElementById("loginButton").onclick = login;
+
+
+async function logout(){
+
+  await db.auth.signOut();
+
+  orders = [];
+
+  document.getElementById("dashboard")
+    .classList.add("hidden");
+
+  document.getElementById("loginCard")
+    .classList.remove("hidden");
+
+  document.getElementById("adminPassword").value = "";
+
+}
+
+document.getElementById("logoutButton").onclick = logout;
+
+
+// =====================================
+// CREATE NEW ORDER
+// =====================================
+
+async function createOrder(){
+
+  const customerName =
+    document.getElementById("customerName").value.trim();
+
+  const courier =
+    document.getElementById("courier").value;
+
+  const courierReference =
+    document.getElementById("courierReference").value.trim();
+
+  const currentLocation =
+    document.getElementById("location").value.trim();
+
+  const eta =
+    document.getElementById("eta").value;
+
+  const note =
+    document.getElementById("note").value.trim();
+
+  const msg =
+    document.getElementById("createMessage");
+
+  if(!customerName){
+    msg.textContent = "Please enter the customer name.";
+    return;
+  }
+
+  const trackingId = "ZYR-2026-" +
+    crypto.randomUUID()
+      .replace(/-/g,"")
+      .slice(0,10)
+      .toUpperCase();
+
+  msg.textContent = "Creating order...";
+
+  const {data,error} = await db
+    .from("zyra_orders")
+    .insert({
+      tracking_id:trackingId,
+      customer_name:customerName,
+      courier:courier,
+      courier_reference:courierReference,
+      status:"Order Confirmed",
+      location:currentLocation,
+      estimated_delivery:eta || null,
+      note:note
+    })
+    .select()
+    .single();
+
+  if(error){
+    msg.textContent = error.message;
+    return;
+  }
+
+  const {error:eventError} = await db
+    .from("zyra_tracking_events")
+    .insert({
+      order_id:data.id,
+      status:"Order Confirmed",
+      location:currentLocation,
+      note:note
+    });
+
+  if(eventError){
+    msg.textContent =
+      "Order created, but history could not be saved: " +
+      eventError.message;
+    return;
+  }
+
+  msg.textContent =
+    "Order created successfully for " +
+    customerName + ". Tracking ID: " + trackingId;
+
+  [
+    "customerName",
+    "courierReference",
+    "location",
+    "eta",
+    "note"
+  ].forEach(id => {
+    document.getElementById(id).value = "";
+  });
+
+  loadOrders();
+
+}
+
+document.getElementById("createButton").onclick = createOrder;
+
+
+// =====================================
+// LOAD ORDERS
+// =====================================
+
 async function loadOrders(){
-  const {data,error} = await db.from("zyra_orders")
+
+  const list =
+    document.getElementById("ordersList");
+
+  list.textContent = "Loading orders...";
+
+  const {data,error} = await db
+    .from("zyra_orders")
     .select("*")
     .order("created_at",{ascending:false});
 
   if(error){
-    document.getElementById("ordersList").textContent=error.message;
+    list.textContent = error.message;
     return;
   }
 
-  orders=data||[];
+  orders = data || [];
+
   renderOrders();
+
 }
+
+document.getElementById("refreshButton").onclick = loadOrders;
+
+
+// =====================================
+// DISPLAY ORDERS
+// =====================================
 
 function renderOrders(){
-  const query=document.getElementById("searchOrder").value.toUpperCase();
-  const list=document.getElementById("ordersList");
 
-  const filtered=orders.filter(o=>
-    o.tracking_id.toUpperCase().includes(query)
+  const query =
+    document.getElementById("searchOrder")
+      .value.trim().toUpperCase();
+
+  const list =
+    document.getElementById("ordersList");
+
+  list.innerHTML = "";
+
+  const filtered = orders.filter(o =>
+    (o.tracking_id || "").toUpperCase().includes(query) ||
+    (o.customer_name || "").toUpperCase().includes(query)
   );
 
-  list.innerHTML="";
-
   if(!filtered.length){
-    list.textContent="No orders found.";
+    list.textContent = "No orders found.";
     return;
   }
 
-  filtered.forEach(o=>{
-    const div=document.createElement("div");
-    div.className="order";
+  filtered.forEach(o => {
 
-    const heading=document.createElement("strong");
-    heading.textContent=o.tracking_id;
+    const div = document.createElement("div");
+    div.className = "order";
 
-    const info=document.createElement("p");
-    info.textContent=o.courier+" · "+o.status;
+    const name = document.createElement("strong");
+    name.textContent =
+      "Customer: " + (o.customer_name || "Name not added");
 
-    const update=document.createElement("button");
-    update.className="secondary";
-    update.textContent="Update Order";
-    update.onclick=()=>updateOrder(o);
+    const id = document.createElement("p");
+    id.textContent = "Tracking ID: " + o.tracking_id;
 
-    const share=document.createElement("button");
-    share.className="secondary";
-    share.textContent="Share Tracking";
-    share.onclick=()=>shareOrder(o.tracking_id);
+    const status = document.createElement("p");
+    status.textContent = "Status: " + o.status;
 
-    div.append(heading,info,update,share);
+    const courier = document.createElement("p");
+    courier.textContent = "Courier: " + (o.courier || "Not assigned");
+
+    const update = document.createElement("button");
+    update.className = "secondary";
+    update.textContent = "Update Order";
+    update.onclick = () => updateOrder(o);
+
+    const share = document.createElement("button");
+    share.className = "secondary";
+    share.textContent = "Share Tracking";
+    share.onclick = () => shareOrder(o.tracking_id);
+
+    div.append(name,id,status,courier,update,share);
+
     list.appendChild(div);
+
   });
+
 }
 
+document.getElementById("searchOrder")
+  .addEventListener("input",renderOrders);
+
+
+// =====================================
+// UPDATE ORDER
+// =====================================
+
 async function updateOrder(order){
-  const status=prompt("Enter status:\n"+statuses.join("\n"),order.status);
-  if(!status) return;
+
+  const status = prompt(
+    "Enter one of these statuses:\n\n" +
+    statuses.join("\n"),
+    order.status
+  );
+
+  if(status === null) return;
 
   if(!statuses.includes(status)){
-    alert("Please enter one of the listed statuses exactly.");
+    alert("Please enter a valid status from the list.");
     return;
   }
 
-  const location=prompt("Enter current location:",order.location||"");
-  if(location===null) return;
+  const currentLocation = prompt(
+    "Enter current location:",
+    order.location || ""
+  );
 
-  const eta=prompt("Estimated delivery date (YYYY-MM-DD):",
-    order.estimated_delivery||"");
-  if(eta===null) return;
+  if(currentLocation === null) return;
 
-  const note=prompt("Enter a customer note:",order.note||"");
-  if(note===null) return;
+  const eta = prompt(
+    "Estimated delivery date (YYYY-MM-DD):",
+    order.estimated_delivery || ""
+  );
 
-  const {error}=await db.from("zyra_orders").update({
-    status,
-    location,
-    estimated_delivery:eta||null,
-    note,
-    updated_at:new Date().toISOString()
-  }).eq("id",order.id);
+  if(eta === null) return;
+
+  if(eta && !/^\d{4}-\d{2}-\d{2}$/.test(eta)){
+    alert("Please enter the date in YYYY-MM-DD format.");
+    return;
+  }
+
+  const note = prompt(
+    "Enter customer update note:",
+    order.note || ""
+  );
+
+  if(note === null) return;
+
+  const {error} = await db
+    .from("zyra_orders")
+    .update({
+      status:status,
+      location:currentLocation,
+      estimated_delivery:eta || null,
+      note:note,
+      updated_at:new Date().toISOString()
+    })
+    .eq("id",order.id);
 
   if(error){
     alert(error.message);
     return;
   }
 
-  const {error:eventError}=await db.from("zyra_tracking_events").insert({
-    order_id:order.id,
-    status,
-    location,
-    note
-  });
+  const {error:eventError} = await db
+    .from("zyra_tracking_events")
+    .insert({
+      order_id:order.id,
+      status:status,
+      location:currentLocation,
+      note:note
+    });
 
   if(eventError){
-    alert("Order updated, but event history could not be saved: "+eventError.message);
+    alert(
+      "Order updated, but history could not be saved: " +
+      eventError.message
+    );
+  }else{
+    alert("Order updated successfully!");
   }
 
   loadOrders();
+
 }
+
+
+// =====================================
+// SHARE TRACKING LINK
+// =====================================
 
 function shareOrder(trackingId){
-  const url=location.origin+location.pathname;
-  const message=
-    "Hello! Your Zyra.lk order is on its way. Track your parcel here:\n"+
-    url+"\nTracking ID: "+trackingId;
+
+  const url = new URL(window.location.href);
+
+  url.hash = "";
+  url.search = "";
+
+  url.searchParams.set("track",trackingId);
+
+  const message =
+    "Hello! Your Zyra.lk order is on its way.\n\n" +
+    "Tracking ID: " + trackingId +
+    "\n\nTrack your parcel here:\n" +
+    url.toString();
 
   window.open(
-    "https://wa.me/?text="+encodeURIComponent(message),
+    "https://wa.me/?text=" +
+    encodeURIComponent(message),
     "_blank"
   );
+
 }
+
+
+// =====================================
+// CUSTOMER TRACKING
+// =====================================
 
 async function trackOrder(){
-  const id=document.getElementById("trackingInput").value.trim();
-  const message=document.getElementById("trackMessage");
-  const result=document.getElementById("trackingResult");
+
+  const id =
+    document.getElementById("trackingInput")
+      .value.trim();
+
+  const message =
+    document.getElementById("trackMessage");
+
+  const result =
+    document.getElementById("trackingResult");
 
   result.classList.add("hidden");
-  message.textContent="";
+  result.innerHTML = "";
 
   if(!id){
-    message.textContent="Please enter your tracking ID.";
+    message.textContent = "Please enter your tracking ID.";
     return;
   }
 
-  message.textContent="Finding your parcel...";
+  message.textContent = "Finding your parcel...";
 
-  const {data,error}=await db.rpc("track_zyra_order",{
-    p_tracking_id:id
-  });
+  const {data,error} = await db.rpc(
+    "track_zyra_order",
+    {p_tracking_id:id}
+  );
 
   if(error){
-    message.textContent="Unable to track this order. Please try again.";
+    message.textContent =
+      "Unable to track your order. Please try again.";
     return;
   }
 
-  if(!data || data.error==="not_found"){
-    message.textContent="We couldn't find that tracking ID. Please check it.";
+  if(!data || data.error === "not_found"){
+    message.textContent =
+      "We couldn't find that tracking ID. Please check again.";
     return;
   }
 
-  message.textContent="";
+  message.textContent = "";
+
   result.classList.remove("hidden");
-  result.innerHTML="";
 
-  const title=document.createElement("h2");
-  title.textContent="Your parcel is on its way";
+  function addText(tag,text,className){
 
-  const idLine=document.createElement("p");
-  idLine.textContent="Tracking ID: "+data.tracking_id;
+    const element = document.createElement(tag);
 
-  const status=document.createElement("p");
-  status.className="status";
-  status.textContent=data.status;
+    element.textContent = text;
 
-  const courier=document.createElement("p");
-  courier.textContent="Courier: "+data.courier;
+    if(className){
+      element.className = className;
+    }
 
-  const locationLine=document.createElement("p");
-  locationLine.textContent="Current location: "+(data.location||"Not updated");
+    result.appendChild(element);
 
-  const eta=document.createElement("p");
-  eta.textContent="Estimated delivery: "+(data.estimated_delivery||"To be confirmed");
+    return element;
 
-  const note=document.createElement("p");
-  note.textContent=data.note||"";
+  }
 
-  const historyTitle=document.createElement("h3");
-  historyTitle.textContent="Delivery Updates";
+  addText("h2","Your Order Details");
 
-  result.append(title,idLine,status,courier,locationLine,eta,note,historyTitle);
+  addText(
+    "p",
+    "Customer: " + (data.customer_name || "Customer")
+  );
 
-  (data.events||[]).forEach(event=>{
-    const item=document.createElement("div");
-    item.className="event";
+  addText(
+    "p",
+    "Tracking ID: " + data.tracking_id
+  );
 
-    const heading=document.createElement("strong");
-    heading.textContent=event.status;
+  addText("p",data.status,"status");
 
-    const details=document.createElement("p");
-    details.textContent=(event.location||"Location pending")+
-      (event.note?" · "+event.note:"");
+  addText(
+    "p",
+    "Courier: " + (data.courier || "Not assigned")
+  );
 
-    const time=document.createElement("p");
-    time.className="small";
-    time.textContent=new Date(event.created_at).toLocaleString();
+  addText(
+    "p",
+    "Current location: " + (data.location || "Not updated")
+  );
+
+  addText(
+    "p",
+    "Estimated delivery: " +
+    (data.estimated_delivery || "To be confirmed")
+  );
+
+  if(data.note){
+    addText("p","Order note: " + data.note);
+  }
+
+  addText("h3","Delivery Updates");
+
+  if(!data.events || !data.events.length){
+    addText("p","No delivery updates yet.","small");
+  }
+
+  (data.events || []).forEach(event => {
+
+    const item = document.createElement("div");
+    item.className = "event";
+
+    const heading = document.createElement("strong");
+    heading.textContent = event.status;
+
+    const details = document.createElement("p");
+    details.textContent =
+      (event.location || "Location pending") +
+      (event.note ? " · " + event.note : "");
+
+    const time = document.createElement("p");
+    time.className = "small";
+    time.textContent =
+      new Date(event.created_at).toLocaleString();
 
     item.append(heading,details,time);
+
     result.appendChild(item);
+
   });
+
 }
 
-// Restore an existing admin session after refreshing the page.
-db.auth.getSession().then(({data})=>{
-  if(data.session){
-    showAdmin();
-    document.getElementById("loginCard").classList.add("hidden");
-    document.getElementById("dashboard").classList.remove("hidden");
-    loadOrders();
-  }
-});
+document.getElementById("trackButton").onclick = trackOrder;
 
-if(location.hash==="#admin") showAdmin();
+document.getElementById("trackingInput")
+  .addEventListener("keydown",event => {
+    if(event.key === "Enter"){
+      trackOrder();
+    }
+  });
+
+
+// =====================================
+// RESTORE ADMIN SESSION
+// =====================================
+
+async function restoreSession(){
+
+  const {data} = await db.auth.getSession();
+
+  if(data.session){
+
+    showAdmin();
+
+    document.getElementById("loginCard")
+      .classList.add("hidden");
+
+    document.getElementById("dashboard")
+      .classList.remove("hidden");
+
+    loadOrders();
+
+  }
+
+}
+
+
+// =====================================
+// AUTOMATIC CUSTOMER TRACKING LINK
+// =====================================
+
+const sharedTrackingId =
+  new URLSearchParams(window.location.search)
+    .get("track");
+
+if(sharedTrackingId){
+
+  showCustomer();
+
+  document.getElementById("trackingInput").value =
+    sharedTrackingId;
+
+  trackOrder();
+
+}else{
+
+  showCustomer();
+  restoreSession();
+
+}
+
 </script>
+
 </body>
 </html>
