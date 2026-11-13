@@ -2,581 +2,330 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zyra.lk | Order Tracking</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zyra.lk | Order Tracking</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <style>
-    :root {
-      --maroon: #681F32;
-      --gold: #EBD38F;
-      --ivory: #F5EBD8;
-      --white: #fffdf8;
-      --text: #34252a;
-      --muted: #806e70;
-      --border: #e8dccc;
-      --green: #477b58;
-      --red: #a33c45;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      background: var(--ivory);
-      color: var(--text);
-      font-family: Arial, sans-serif;
-    }
-
-    header {
-      background: var(--maroon);
-      color: var(--white);
-      padding: 23px 18px;
-      text-align: center;
-    }
-
-    header h1 {
-      margin: 0;
-      font-family: Georgia, serif;
-      letter-spacing: 3px;
-      font-size: 28px;
-    }
-
-    header p {
-      margin: 8px 0 0;
-      color: var(--gold);
-      font-size: 12px;
-      letter-spacing: 2px;
-    }
-
-    nav {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      padding: 14px;
-      background: var(--white);
-      border-bottom: 1px solid var(--border);
-    }
-
-    button {
-      border: none;
-      cursor: pointer;
-      border-radius: 7px;
-      padding: 11px 16px;
-      font-weight: 600;
-      font-size: 13px;
-    }
-
-    button:disabled {
-      opacity: .55;
-      cursor: not-allowed;
-    }
-
-    .primary {
-      background: var(--maroon);
-      color: white;
-    }
-
-    .secondary {
-      background: var(--gold);
-      color: var(--maroon);
-    }
-
-    .danger {
-      background: #f5dede;
-      color: var(--red);
-    }
-
-    .light {
-      background: #f1e9e3;
-      color: var(--maroon);
-    }
-
-    main {
-      max-width: 1050px;
-      margin: 30px auto;
-      padding: 0 16px 50px;
-    }
-
-    .panel {
-      background: var(--white);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 24px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 18px rgba(70, 35, 42, .05);
-    }
-
-    .panel h2 {
-      color: var(--maroon);
-      font-family: Georgia, serif;
-      margin-top: 0;
-    }
-
-    .intro {
-      text-align: center;
-      padding: 32px 20px;
-    }
-
-    .intro h2 {
-      font-size: 27px;
-      margin-bottom: 10px;
-    }
-
-    .intro p {
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-      margin-bottom: 13px;
-    }
-
-    .field.full {
-      grid-column: 1 / -1;
-    }
-
-    label {
-      font-size: 12px;
-      font-weight: bold;
-      color: var(--maroon);
-    }
-
-    input, select, textarea {
-      width: 100%;
-      border: 1px solid var(--border);
-      border-radius: 7px;
-      padding: 12px;
-      font: inherit;
-      font-size: 14px;
-      background: white;
-      color: var(--text);
-    }
-
-    textarea {
-      resize: vertical;
-      min-height: 75px;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      outline: 2px solid var(--gold);
-      border-color: var(--maroon);
-    }
-
-    .hidden { display: none !important; }
-
-    .message {
-      padding: 12px;
-      border-radius: 7px;
-      margin: 12px 0;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .success {
-      background: #e8f3e9;
-      color: #285d37;
-    }
-
-    .error {
-      background: #fae9e9;
-      color: #8b3030;
-    }
-
-    .info {
-      background: #f8f0dc;
-      color: #6a5120;
-    }
-
-    .order-card {
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 17px;
-      margin-top: 15px;
-      background: #fffefa;
-    }
-
-    .order-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    .order-card h3 {
-      color: var(--maroon);
-      margin: 0 0 8px;
-    }
-
-    .details {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      margin-top: 15px;
-    }
-
-    .detail {
-      font-size: 13px;
-      line-height: 1.6;
-      overflow-wrap: anywhere;
-    }
-
-    .detail strong {
-      display: block;
-      color: var(--muted);
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: .5px;
-    }
-
-    .status {
-      display: inline-block;
-      padding: 7px 11px;
-      border-radius: 20px;
-      background: #f5e7c4;
-      color: #6c4c17;
-      font-size: 11px;
-      font-weight: bold;
-      text-transform: uppercase;
-    }
-
-    .history {
-      border-left: 2px solid var(--gold);
-      padding-left: 17px;
-      margin: 18px 0 5px 5px;
-    }
-
-    .event {
-      position: relative;
-      padding-bottom: 17px;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .event::before {
-      content: "";
-      position: absolute;
-      left: -23px;
-      top: 3px;
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: var(--maroon);
-    }
-
-    .event strong {
-      color: var(--maroon);
-    }
-
-    .event small {
-      display: block;
-      color: var(--muted);
-      margin-top: 3px;
-    }
-
-    .actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-top: 15px;
-    }
-
-    .actions button {
-      padding: 9px 12px;
-      font-size: 12px;
-    }
-
-    .admin-heading {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .admin-heading h2 { margin-bottom: 5px; }
-
-    .empty {
-      text-align: center;
-      padding: 25px;
-      color: var(--muted);
-    }
-
-    footer {
-      text-align: center;
-      color: var(--muted);
-      font-size: 12px;
-      padding: 20px;
-    }
-
-    @media(max-width: 600px) {
-      .form-grid, .details {
-        grid-template-columns: 1fr;
-      }
-
-      .panel { padding: 18px; }
-      main { margin-top: 18px; }
-      header h1 { font-size: 24px; }
-    }
-  </style>
+<style>
+:root {
+  --maroon:#681F32;
+  --gold:#EBD38F;
+  --ivory:#F5EBD8;
+  --white:#fffdf8;
+  --ink:#30252a;
+  --muted:#786c70;
+  --border:#e8dccb;
+  --red:#a83232;
+  --green:#287548;
+}
+* {box-sizing:border-box}
+body {
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:var(--ivory);
+  color:var(--ink);
+}
+header {
+  background:var(--maroon);
+  color:white;
+  text-align:center;
+  padding:30px 15px;
+}
+.brand {
+  font-family:Georgia,serif;
+  font-size:35px;
+  letter-spacing:3px;
+}
+header p {
+  color:var(--gold);
+  font-size:11px;
+  letter-spacing:3px;
+  margin:8px 0 0;
+}
+main {width:min(1000px,93%);margin:30px auto}
+.card {
+  background:var(--white);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:22px;
+  margin-bottom:20px;
+  box-shadow:0 5px 20px #4a26300c;
+}
+h2 {color:var(--maroon);font-family:Georgia,serif;margin:0 0 15px}
+h3 {color:var(--maroon)}
+label {
+  display:block;
+  font-size:13px;
+  font-weight:bold;
+  margin:13px 0 6px;
+}
+input,select,textarea {
+  width:100%;
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  background:white;
+  font:inherit;
+  outline-color:var(--gold);
+}
+textarea {min-height:75px;resize:vertical}
+button {
+  border:0;
+  border-radius:8px;
+  background:var(--maroon);
+  color:white;
+  padding:12px 17px;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:12px;
+}
+button:hover {opacity:.9}
+button:disabled {opacity:.5;cursor:not-allowed}
+button.secondary {background:var(--gold);color:var(--maroon)}
+button.danger {background:var(--red)}
+button.green {background:var(--green)}
+.grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+}
+.full {grid-column:1/-1}
+.hidden {display:none!important}
+.muted {color:var(--muted);font-size:13px}
+.message {
+  padding:12px;
+  border-radius:8px;
+  margin-top:12px;
+  background:#f4eee5;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  font-size:13px;
+}
+.error {color:var(--red);background:#fff0ef}
+.success {color:var(--green);background:#edf8ef}
+.status {
+  display:inline-block;
+  background:var(--gold);
+  color:var(--maroon);
+  padding:7px 12px;
+  border-radius:30px;
+  font-size:12px;
+  font-weight:bold;
+}
+.event {
+  border-left:3px solid var(--gold);
+  padding:5px 0 14px 14px;
+  margin:12px 0;
+}
+.event strong {color:var(--maroon)}
+.order-item {
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:15px;
+  margin-top:12px;
+  overflow-wrap:anywhere;
+}
+.order-item p {margin:6px 0;font-size:13px}
+.actions {display:flex;flex-wrap:wrap;gap:8px}
+.actions button {margin-top:8px}
+.section-title {
+  border-bottom:1px solid var(--border);
+  padding-bottom:12px;
+  margin-bottom:15px;
+}
+footer {
+  text-align:center;
+  color:var(--muted);
+  padding:25px;
+  font-size:12px;
+}
+@media(max-width:600px) {
+  .grid {grid-template-columns:1fr}
+  .full {grid-column:auto}
+  .card {padding:17px}
+  .brand {font-size:29px}
+}
+</style>
 </head>
 
 <body>
 
 <header>
-  <h1>ZYRA.LK</h1>
-  <p>YOUR ORDER, YOUR JOURNEY</p>
+  <div class="brand">ZYRA.LK</div>
+  <p>ORDER TRACKING</p>
 </header>
-
-<nav>
-  <button class="primary" onclick="showCustomer()">Track My Order</button>
-  <button class="light" onclick="showLogin()">Admin Login</button>
-</nav>
 
 <main>
 
-  <!-- CUSTOMER TRACKING SECTION -->
-  <section id="customerSection">
+<!-- CUSTOMER TRACKING -->
+<section class="card">
+  <h2>Track Your Order</h2>
+  <p class="muted">Enter your tracking ID to view your latest order updates.</p>
 
-    <div class="panel intro">
-      <h2>Track Your Order</h2>
-      <p>Enter your Zyra.lk tracking ID to check your order status and delivery updates.</p>
+  <label for="trackingSearch">Tracking ID</label>
+  <input id="trackingSearch" placeholder="Example: ZYR-2026-CB315" autocomplete="off">
 
-      <div class="field">
-        <input id="trackingSearch"
-               placeholder="Enter your tracking ID"
-               autocomplete="off">
-      </div>
+  <button id="trackButton" onclick="trackOrder()">Track Order</button>
+  <div id="trackingMessage" class="message hidden"></div>
+  <div id="trackingResult" class="hidden"></div>
+</section>
 
-      <button class="primary" id="trackButton" onclick="trackOrder()">
-        Track Order
-      </button>
+<!-- ADMIN LOGIN -->
+<section class="card" id="loginSection">
+  <h2>Admin Login</h2>
+  <p class="muted">Authorised administrators only.</p>
 
-      <div id="trackingMessage"></div>
+  <label for="adminEmail">Email</label>
+  <input id="adminEmail" type="email" placeholder="Admin email">
+
+  <label for="adminPassword">Password</label>
+  <input id="adminPassword" type="password" placeholder="Password">
+
+  <button id="loginButton" onclick="adminLogin()">Login</button>
+  <div id="loginMessage" class="message hidden"></div>
+</section>
+
+<!-- ADMIN DASHBOARD -->
+<section id="adminDashboard" class="hidden">
+
+  <section class="card">
+    <div class="section-title">
+      <h2>Admin Dashboard</h2>
+      <p class="muted">Manage your Zyra.lk customer orders.</p>
     </div>
-
-    <div id="trackingResult"></div>
-
+    <button class="secondary" onclick="adminLogout()">Logout</button>
   </section>
 
-  <!-- ADMIN LOGIN -->
-  <section id="loginSection" class="hidden">
-    <div class="panel" style="max-width:480px;margin:auto;">
-      <h2>Admin Login</h2>
-      <p style="color:var(--muted);font-size:13px;">
-        Sign in using your authorised Zyra.lk admin account.
-      </p>
+  <!-- CREATE ORDER -->
+  <section class="card">
+    <h2>Create New Order</h2>
 
-      <form id="loginForm">
-        <div class="field">
-          <label>Email</label>
-          <input id="adminEmail" type="email" required autocomplete="username">
-        </div>
-
-        <div class="field">
-          <label>Password</label>
-          <input id="adminPassword" type="password" required autocomplete="current-password">
-        </div>
-
-        <button class="primary" type="submit" id="loginButton">
-          Login
+    <div class="grid">
+      <div class="full">
+        <label for="newTrackingId">Tracking ID</label>
+        <input id="newTrackingId" placeholder="ZYR-2026-CB315">
+        <button class="secondary" type="button" onclick="generateTrackingId()">
+          Generate Tracking ID
         </button>
-      </form>
+      </div>
 
-      <div id="loginMessage"></div>
+      <div class="full">
+        <label for="newCustomer">Customer Name</label>
+        <input id="newCustomer" placeholder="Customer name">
+      </div>
+
+      <div>
+        <label for="newCourier">Courier</label>
+        <input id="newCourier" placeholder="Courier name">
+      </div>
+
+      <div>
+        <label for="newCourierRef">Courier Reference</label>
+        <input id="newCourierRef" placeholder="Courier reference number">
+      </div>
+
+      <div>
+        <label for="newStatus">Order Status</label>
+        <select id="newStatus"></select>
+      </div>
+
+      <div>
+        <label for="newLocation">Current Location</label>
+        <input id="newLocation" placeholder="Current location">
+      </div>
+
+      <div>
+        <label for="newDelivery">Estimated Delivery</label>
+        <input id="newDelivery" type="date">
+      </div>
+
+      <div class="full">
+        <label for="newNote">Order Note</label>
+        <textarea id="newNote" placeholder="Additional information"></textarea>
+      </div>
     </div>
+
+    <button id="createButton" onclick="createOrder()">Create Order</button>
+    <div id="createMessage" class="message hidden"></div>
   </section>
 
-  <!-- ADMIN DASHBOARD -->
-  <section id="adminSection" class="hidden">
+  <!-- EDIT ORDER -->
+  <section class="card hidden" id="editSection">
+    <h2>Edit Order</h2>
+    <p class="muted">Update customer details, tracking ID and delivery information.</p>
 
-    <div class="panel">
-      <div class="admin-heading">
-        <div>
-          <h2>Admin Dashboard</h2>
-          <p style="font-size:12px;color:var(--muted);margin:0;">
-            Manage customer orders and delivery updates.
-          </p>
-        </div>
-        <button class="danger" onclick="logout()">Logout</button>
+    <input id="editOriginalId" type="hidden">
+
+    <div class="grid">
+      <div class="full">
+        <label for="editTrackingId">Tracking ID</label>
+        <input id="editTrackingId">
+      </div>
+
+      <div class="full">
+        <label for="editCustomer">Customer Name</label>
+        <input id="editCustomer">
+      </div>
+
+      <div>
+        <label for="editCourier">Courier</label>
+        <input id="editCourier">
+      </div>
+
+      <div>
+        <label for="editCourierRef">Courier Reference</label>
+        <input id="editCourierRef">
+      </div>
+
+      <div>
+        <label for="editStatus">Order Status</label>
+        <select id="editStatus"></select>
+      </div>
+
+      <div>
+        <label for="editLocation">Current Location</label>
+        <input id="editLocation">
+      </div>
+
+      <div>
+        <label for="editDelivery">Estimated Delivery</label>
+        <input id="editDelivery" type="date">
+      </div>
+
+      <div class="full">
+        <label for="editNote">Order Note</label>
+        <textarea id="editNote"></textarea>
+      </div>
+
+      <div class="full">
+        <label for="editEventNote">Tracking Update Note</label>
+        <textarea id="editEventNote" placeholder="Describe this update for the customer"></textarea>
       </div>
     </div>
 
-    <!-- CREATE ORDER -->
-    <div class="panel">
-      <h2>Create New Order</h2>
-
-      <form id="createOrderForm">
-        <div class="form-grid">
-
-          <div class="field">
-            <label>Customer Name *</label>
-            <input id="newCustomerName" required>
-          </div>
-
-          <div class="field">
-            <label>Tracking ID *</label>
-            <input id="newTrackingId" required>
-          </div>
-
-          <div class="field">
-            <label>Courier</label>
-            <input id="newCourier" placeholder="e.g. Domex">
-          </div>
-
-          <div class="field">
-            <label>Courier Reference</label>
-            <input id="newCourierReference">
-          </div>
-
-          <div class="field">
-            <label>Order Status</label>
-            <select id="newStatus">
-              <option>Order Confirmed</option>
-              <option>Processing</option>
-              <option>Ready for Dispatch</option>
-              <option>Dispatched</option>
-              <option>In Transit</option>
-              <option>Out for Delivery</option>
-              <option>Delivered</option>
-              <option>Delivery Delayed</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label>Current Location</label>
-            <input id="newLocation">
-          </div>
-
-          <div class="field">
-            <label>Estimated Delivery Date</label>
-            <input id="newEstimatedDelivery" type="date">
-          </div>
-
-          <div class="field">
-            <label>Notes</label>
-            <input id="newNote">
-          </div>
-
-        </div>
-
-        <button class="primary" type="submit" id="createButton">
-          Create Order
-        </button>
-        <div id="createMessage"></div>
-      </form>
+    <div class="actions">
+      <button id="saveEditButton" onclick="saveEdit()">Save Changes</button>
+      <button class="secondary" onclick="cancelEdit()">Cancel</button>
     </div>
 
-    <!-- SEARCH ORDERS -->
-    <div class="panel">
-      <div class="admin-heading">
-        <h2>All Orders</h2>
-        <button class="secondary" onclick="loadOrders()">Refresh Orders</button>
-      </div>
-
-      <div class="field">
-        <label>Search by Customer Name or Tracking ID</label>
-        <input id="adminSearch"
-               placeholder="Search orders..."
-               oninput="renderOrders()">
-      </div>
-
-      <div id="ordersList">
-        <div class="empty">Loading orders...</div>
-      </div>
-    </div>
-
-    <!-- EDIT ORDER -->
-    <div id="editPanel" class="panel hidden">
-      <h2>Edit Order</h2>
-
-      <form id="editOrderForm">
-        <input id="editOriginalTrackingId" type="hidden">
-
-        <div class="form-grid">
-
-          <div class="field">
-            <label>Customer Name *</label>
-            <input id="editCustomerName" required>
-          </div>
-
-          <div class="field">
-            <label>Tracking ID *</label>
-            <input id="editTrackingId" required>
-          </div>
-
-          <div class="field">
-            <label>Courier</label>
-            <input id="editCourier">
-          </div>
-
-          <div class="field">
-            <label>Courier Reference</label>
-            <input id="editCourierReference">
-          </div>
-
-          <div class="field">
-            <label>Order Status</label>
-            <select id="editStatus">
-              <option>Order Confirmed</option>
-              <option>Processing</option>
-              <option>Ready for Dispatch</option>
-              <option>Dispatched</option>
-              <option>In Transit</option>
-              <option>Out for Delivery</option>
-              <option>Delivered</option>
-              <option>Delivery Delayed</option>
-              <option>On Hold</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label>Current Location</label>
-            <input id="editLocation">
-          </div>
-
-          <div class="field">
-            <label>Estimated Delivery Date</label>
-            <input id="editEstimatedDelivery" type="date">
-          </div>
-
-          <div class="field">
-            <label>Notes</label>
-            <input id="editNote">
-          </div>
-
-          <div class="field full">
-            <label>Tracking Update Note</label>
-            <textarea id="editEventNote"
-              placeholder="Add an update for the customer's tracking history..."></textarea>
-          </div>
-
-        </div>
-
-        <div class="actions">
-          <button class="primary" type="submit" id="saveEditButton">Save Changes</button>
-          <button class="light" type="button" onclick="closeEdit()">Cancel</button>
-        </div>
-
-        <div id="editMessage"></div>
-      </form>
-    </div>
-
+    <div id="editMessage" class="message hidden"></div>
   </section>
 
+  <!-- ORDER SEARCH -->
+  <section class="card">
+    <h2>Manage Orders</h2>
+
+    <label for="adminSearch">Search by Customer Name or Tracking ID</label>
+    <input id="adminSearch" placeholder="Search orders..." oninput="filterOrders()">
+
+    <button class="secondary" onclick="loadOrders()">Refresh Orders</button>
+
+    <div id="ordersMessage" class="message hidden"></div>
+    <div id="ordersList"></div>
+  </section>
+
+</section>
 </main>
 
 <footer>
@@ -584,675 +333,604 @@
 </footer>
 
 <script>
-  // -----------------------------------------
-  // SUPABASE CONNECTION
-  // -----------------------------------------
+/* SUPABASE CONNECTION */
+const SUPABASE_URL = "https://rouysaipjmzmvoegtign.supabase.co";
+const SUPABASE_KEY = "sb_publishable_XmZ0RqmzN4uAEtAhJcFgMg_CQ-HWv2D";
 
-  const SUPABASE_URL = "https://rouysaipjmzmvoegtign.supabase.co";
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
 
-  const SUPABASE_ANON_KEY =
-    "sb_publishable_XmZ0RqmzN4uAEtAhJcFgMg_CQ-HWv2D";
+const STATUSES = [
+  "Order Confirmed",
+  "Processing",
+  "Ready for Dispatch",
+  "Dispatched",
+  "In Transit",
+  "Out for Delivery",
+  "Delivered",
+  "Delivery Delayed",
+  "On Hold"
+];
 
-  const db = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_ANON_KEY
-  );
+let allOrders = [];
+let currentUser = null;
 
-  let orders = [];
-  let currentAdmin = null;
+document.getElementById("year").textContent = new Date().getFullYear();
 
-  document.getElementById("year").textContent =
-    new Date().getFullYear();
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, char => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  })[char]);
+}
 
+function showMessage(id, message, type = "") {
+  const element = document.getElementById(id);
+  element.textContent = message;
+  element.className = "message" + (type ? " " + type : "");
+  element.classList.remove("hidden");
+}
 
-  // -----------------------------------------
-  // GENERAL HELPERS
-  // -----------------------------------------
+function hideMessage(id) {
+  document.getElementById(id).classList.add("hidden");
+}
 
-  function el(id) {
-    return document.getElementById(id);
+function formatDate(value) {
+  if (!value) return "Not provided";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString("en-GB", {
+    day:"2-digit", month:"short", year:"numeric"
+  });
+}
+
+function formatDateTime(value) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString("en-GB", {
+    day:"2-digit", month:"short", year:"numeric",
+    hour:"2-digit", minute:"2-digit"
+  });
+}
+
+function fillStatusOptions(id, selected = "") {
+  const select = document.getElementById(id);
+  select.innerHTML = STATUSES.map(status =>
+    `<option value="${escapeHTML(status)}">${escapeHTML(status)}</option>`
+  ).join("");
+  if (selected && STATUSES.includes(selected)) select.value = selected;
+}
+
+fillStatusOptions("newStatus");
+fillStatusOptions("editStatus");
+
+/* ERROR HANDLING */
+function explainError(error) {
+  if (!error) return "An unknown error occurred.";
+
+  const parts = [
+    error.message,
+    error.details,
+    error.hint,
+    error.code ? "Error code: " + error.code : ""
+  ].filter(Boolean);
+
+  return parts.join("\n") || String(error);
+}
+
+/* CUSTOMER TRACKING */
+async function trackOrder() {
+  const trackingId = document.getElementById("trackingSearch").value.trim();
+
+  hideMessage("trackingMessage");
+  const result = document.getElementById("trackingResult");
+  result.classList.add("hidden");
+  result.innerHTML = "";
+
+  if (!trackingId) {
+    showMessage("trackingMessage", "Please enter your tracking ID.", "error");
+    return;
   }
 
-  function escapeHTML(value) {
-    return String(value ?? "").replace(/[&<>"']/g, char => ({
-      "&": "&amp;",
-      "<": "&lt;",
-      ">": "&gt;",
-      '"': "&quot;",
-      "'": "&#039;"
-    })[char]);
-  }
+  const button = document.getElementById("trackButton");
+  button.disabled = true;
+  button.textContent = "Checking...";
 
-  function showMessage(id, message, type = "info") {
-    el(id).innerHTML = message
-      ? `<div class="message ${type}">${escapeHTML(message)}</div>`
-      : "";
-  }
-
-  function formatDate(value) {
-    if (!value) return "Not available";
-
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) return escapeHTML(value);
-
-    return date.toLocaleDateString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric"
+  try {
+    const { data, error } = await db.rpc("track_zyra_order", {
+      p_tracking_id: trackingId
     });
-  }
 
-  function formatDateTime(value) {
-    if (!value) return "";
+    if (error) throw error;
 
-    const date = new Date(value);
-
-    if (Number.isNaN(date.getTime())) return "";
-
-    return date.toLocaleString("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit"
-    });
-  }
-
-  function showCustomer() {
-    el("customerSection").classList.remove("hidden");
-    el("loginSection").classList.add("hidden");
-    el("adminSection").classList.add("hidden");
-  }
-
-  function showLogin() {
-    el("customerSection").classList.add("hidden");
-    el("loginSection").classList.remove("hidden");
-    el("adminSection").classList.add("hidden");
-  }
-
-  function showAdmin() {
-    el("customerSection").classList.add("hidden");
-    el("loginSection").classList.add("hidden");
-    el("adminSection").classList.remove("hidden");
-  }
-
-
-  // -----------------------------------------
-  // CUSTOMER ORDER TRACKING
-  // -----------------------------------------
-
-  async function trackOrder() {
-    const trackingId = el("trackingSearch").value.trim();
-
-    el("trackingResult").innerHTML = "";
-
-    if (!trackingId) {
-      showMessage("trackingMessage", "Please enter your tracking ID.", "error");
+    if (!data || !data.order) {
+      showMessage("trackingMessage", "No order found. Please check your tracking ID.", "error");
       return;
     }
 
-    el("trackButton").disabled = true;
-    el("trackButton").textContent = "Searching...";
-    showMessage("trackingMessage", "Checking your order...", "info");
+    displayTracking(data);
+  } catch (error) {
+    showMessage(
+      "trackingMessage",
+      "Unable to retrieve your order.\n" + explainError(error),
+      "error"
+    );
+  } finally {
+    button.disabled = false;
+    button.textContent = "Track Order";
+  }
+}
 
-    try {
-      const { data, error } = await db.rpc(
-        "track_zyra_order",
-        { p_tracking_id: trackingId }
-      );
+function displayTracking(data) {
+  const order = data.order;
+  const events = Array.isArray(data.events) ? data.events : [];
+  const result = document.getElementById("trackingResult");
 
-      if (error) throw error;
+  const eventHTML = events.length
+    ? events.map(event => `
+      <div class="event">
+        <strong>${escapeHTML(event.status)}</strong>
+        <p class="muted">${escapeHTML(formatDateTime(event.created_at))}</p>
+        ${event.location ? `<p>${escapeHTML(event.location)}</p>` : ""}
+        ${event.note ? `<p>${escapeHTML(event.note)}</p>` : ""}
+      </div>
+    `).join("")
+    : `<p class="muted">No tracking updates have been added yet.</p>`;
 
-      let order = Array.isArray(data) ? data[0] : data;
+  result.innerHTML = `
+    <div class="card" style="margin-top:20px">
+      <h3>Order Details</h3>
+      <p><strong>Tracking ID:</strong> ${escapeHTML(order.tracking_id)}</p>
+      <p><strong>Customer:</strong> ${escapeHTML(order.customer_name)}</p>
+      <p><strong>Status:</strong> <span class="status">${escapeHTML(order.status)}</span></p>
+      <p><strong>Courier:</strong> ${escapeHTML(order.courier || "Not provided")}</p>
+      <p><strong>Courier Reference:</strong> ${escapeHTML(order.courier_reference || "Not provided")}</p>
+      <p><strong>Current Location:</strong> ${escapeHTML(order.location || "Not provided")}</p>
+      <p><strong>Estimated Delivery:</strong> ${escapeHTML(formatDate(order.estimated_delivery))}</p>
+      ${order.note ? `<p><strong>Note:</strong> ${escapeHTML(order.note)}</p>` : ""}
+      <hr style="border:0;border-top:1px solid var(--border);margin:20px 0">
+      <h3>Tracking History</h3>
+      ${eventHTML}
+    </div>
+  `;
 
-      if (!order || order.found === false || !order.tracking_id) {
-        showMessage("trackingMessage", "No order found. Please check your tracking ID.", "error");
-        return;
-      }
+  result.classList.remove("hidden");
+  hideMessage("trackingMessage");
+}
 
-      showMessage("trackingMessage", "", "info");
-      displayTracking(order);
+/* SUPPORT TRACKING LINKS */
+const urlParams = new URLSearchParams(window.location.search);
+const sharedTrackingId = urlParams.get("track");
 
-    } catch (error) {
-      console.error(error);
+if (sharedTrackingId) {
+  document.getElementById("trackingSearch").value = sharedTrackingId;
+  trackOrder();
+}
+
+document.getElementById("trackingSearch").addEventListener("keydown", event => {
+  if (event.key === "Enter") trackOrder();
+});
+
+/* ADMIN LOGIN */
+async function adminLogin() {
+  hideMessage("loginMessage");
+
+  const email = document.getElementById("adminEmail").value.trim();
+  const password = document.getElementById("adminPassword").value;
+
+  if (!email || !password) {
+    showMessage("loginMessage", "Please enter your email and password.", "error");
+    return;
+  }
+
+  const button = document.getElementById("loginButton");
+  button.disabled = true;
+  button.textContent = "Logging in...";
+
+  try {
+    const { data, error } = await db.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) throw error;
+
+    if (data.user?.app_metadata?.role !== "admin") {
+      await db.auth.signOut();
+      throw new Error("This account does not have administrator access.");
+    }
+
+    currentUser = data.user;
+    showDashboard();
+  } catch (error) {
+    showMessage("loginMessage", explainError(error), "error");
+  } finally {
+    button.disabled = false;
+    button.textContent = "Login";
+  }
+}
+
+function showDashboard() {
+  document.getElementById("loginSection").classList.add("hidden");
+  document.getElementById("adminDashboard").classList.remove("hidden");
+  hideMessage("loginMessage");
+  loadOrders();
+}
+
+async function adminLogout() {
+  const { error } = await db.auth.signOut();
+
+  if (error) {
+    showMessage("ordersMessage", explainError(error), "error");
+    return;
+  }
+
+  currentUser = null;
+  allOrders = [];
+
+  document.getElementById("adminDashboard").classList.add("hidden");
+  document.getElementById("loginSection").classList.remove("hidden");
+  document.getElementById("ordersList").innerHTML = "";
+  cancelEdit();
+}
+
+async function checkSession() {
+  try {
+    const { data, error } = await db.auth.getSession();
+    if (error) throw error;
+
+    const user = data.session?.user;
+
+    if (user?.app_metadata?.role === "admin") {
+      currentUser = user;
+      showDashboard();
+    } else if (user) {
+      await db.auth.signOut();
+    }
+  } catch (error) {
+    console.error("Session check:", explainError(error));
+  }
+}
+
+/* TRACKING ID GENERATOR */
+function generateTrackingId() {
+  const year = new Date().getFullYear();
+  const characters = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let suffix = "";
+
+  for (let i = 0; i < 5; i++) {
+    suffix += characters[Math.floor(Math.random() * characters.length)];
+  }
+
+  document.getElementById("newTrackingId").value =
+    `ZYR-${year}-${suffix}`;
+}
+
+/* CREATE ORDER */
+async function createOrder() {
+  hideMessage("createMessage");
+
+  const tracking_id = document.getElementById("newTrackingId").value.trim().toUpperCase();
+  const customer_name = document.getElementById("newCustomer").value.trim();
+  const courier = document.getElementById("newCourier").value.trim();
+  const courier_reference = document.getElementById("newCourierRef").value.trim();
+  const status = document.getElementById("newStatus").value;
+  const location = document.getElementById("newLocation").value.trim();
+  const estimated_delivery = document.getElementById("newDelivery").value || null;
+  const note = document.getElementById("newNote").value.trim();
+
+  if (!tracking_id || !customer_name) {
+    showMessage("createMessage", "Tracking ID and customer name are required.", "error");
+    return;
+  }
+
+  const button = document.getElementById("createButton");
+  button.disabled = true;
+  button.textContent = "Creating...";
+
+  try {
+    const { error } = await db.from("zyra_orders").insert({
+      tracking_id,
+      customer_name,
+      courier,
+      courier_reference,
+      status,
+      location,
+      estimated_delivery,
+      note
+    });
+
+    if (error) throw error;
+
+    const { error: eventError } = await db.from("zyra_tracking_events").insert({
+      tracking_id,
+      status,
+      location,
+      note: note || "Order created."
+    });
+
+    if (eventError) {
       showMessage(
-        "trackingMessage",
-        "Unable to retrieve your order. Please try again later.",
+        "createMessage",
+        "Order created, but its first tracking event could not be saved.\n" +
+        explainError(eventError),
         "error"
       );
-    } finally {
-      el("trackButton").disabled = false;
-      el("trackButton").textContent = "Track Order";
+    } else {
+      showMessage("createMessage", "Order created successfully!", "success");
     }
+
+    document.getElementById("newTrackingId").value = "";
+    document.getElementById("newCustomer").value = "";
+    document.getElementById("newCourier").value = "";
+    document.getElementById("newCourierRef").value = "";
+    document.getElementById("newLocation").value = "";
+    document.getElementById("newDelivery").value = "";
+    document.getElementById("newNote").value = "";
+
+    await loadOrders();
+
+  } catch (error) {
+    showMessage("createMessage", "Could not create order.\n" + explainError(error), "error");
+  } finally {
+    button.disabled = false;
+    button.textContent = "Create Order";
+  }
+}
+
+/* LOAD ORDERS */
+async function loadOrders() {
+  hideMessage("ordersMessage");
+
+  const container = document.getElementById("ordersList");
+  container.innerHTML = '<p class="muted">Loading orders...</p>';
+
+  try {
+    const { data, error } = await db
+      .from("zyra_orders")
+      .select("*")
+      .order("created_at", { ascending:false });
+
+    if (error) throw error;
+
+    allOrders = data || [];
+    filterOrders();
+
+  } catch (error) {
+    container.innerHTML = "";
+    showMessage("ordersMessage", "Unable to load orders.\n" + explainError(error), "error");
+  }
+}
+
+/* SEARCH ORDERS */
+function filterOrders() {
+  const search = document.getElementById("adminSearch").value
+    .trim().toLowerCase();
+
+  const filtered = allOrders.filter(order =>
+    String(order.customer_name || "").toLowerCase().includes(search) ||
+    String(order.tracking_id || "").toLowerCase().includes(search)
+  );
+
+  renderOrders(filtered);
+}
+
+/* DISPLAY ORDERS */
+function renderOrders(orders) {
+  const container = document.getElementById("ordersList");
+
+  if (!orders.length) {
+    container.innerHTML = '<p class="muted">No matching orders found.</p>';
+    return;
   }
 
-  function displayTracking(order) {
-    const events = Array.isArray(order.events) ? order.events : [];
+  container.innerHTML = orders.map(order => `
+    <div class="order-item">
+      <h3>${escapeHTML(order.customer_name)}</h3>
+      <p><strong>Tracking ID:</strong> ${escapeHTML(order.tracking_id)}</p>
+      <p><strong>Status:</strong> <span class="status">${escapeHTML(order.status)}</span></p>
+      <p><strong>Courier:</strong> ${escapeHTML(order.courier || "Not provided")}</p>
+      <p><strong>Created:</strong> ${escapeHTML(formatDate(order.created_at))}</p>
 
-    const historyHTML = events.length
-      ? events.map(event => `
-          <div class="event">
-            <strong>${escapeHTML(event.status || "Update")}</strong>
-            ${event.location
-              ? `<div>${escapeHTML(event.location)}</div>`
-              : ""}
-            ${event.note
-              ? `<div>${escapeHTML(event.note)}</div>`
-              : ""}
-            <small>${escapeHTML(formatDateTime(event.created_at))}</small>
-          </div>
-        `).join("")
-      : `<p style="color:var(--muted);font-size:13px;">
-           No tracking updates have been added yet.
-         </p>`;
-
-    const courierReference = order.courier_reference || "Not available";
-
-    el("trackingResult").innerHTML = `
-      <div class="panel">
-        <div class="order-top">
-          <div>
-            <h2 style="margin-bottom:7px;">Order Details</h2>
-            <p style="margin:0;color:var(--muted);font-size:13px;">
-              Tracking ID: <strong>${escapeHTML(order.tracking_id)}</strong>
-            </p>
-          </div>
-          <span class="status">${escapeHTML(order.status || "Processing")}</span>
-        </div>
-
-        <div class="details">
-          <div class="detail">
-            <strong>Customer Name</strong>
-            ${escapeHTML(order.customer_name || "Customer")}
-          </div>
-
-          <div class="detail">
-            <strong>Courier</strong>
-            ${escapeHTML(order.courier || "Not assigned")}
-          </div>
-
-          <div class="detail">
-            <strong>Courier Reference</strong>
-            ${escapeHTML(courierReference)}
-          </div>
-
-          <div class="detail">
-            <strong>Current Location</strong>
-            ${escapeHTML(order.location || "Not updated")}
-          </div>
-
-          <div class="detail">
-            <strong>Estimated Delivery</strong>
-            ${escapeHTML(formatDate(order.estimated_delivery))}
-          </div>
-
-          <div class="detail">
-            <strong>Order Created</strong>
-            ${escapeHTML(formatDate(order.created_at))}
-          </div>
-        </div>
-
-        ${order.note ? `
-          <div class="message info" style="margin-top:18px;">
-            <strong>Order Note:</strong> ${escapeHTML(order.note)}
-          </div>
-        ` : ""}
-
-        <h3 style="color:var(--maroon);margin-top:25px;">
-          Tracking History
-        </h3>
-
-        <div class="history">${historyHTML}</div>
+      <div class="actions">
+        <button onclick="startEdit('${encodeURIComponent(order.tracking_id)}')">
+          Edit
+        </button>
+        <button class="secondary" onclick="shareTracking('${encodeURIComponent(order.tracking_id)}')">
+          Share WhatsApp
+        </button>
+        <button class="danger" onclick="deleteOrder('${encodeURIComponent(order.tracking_id)}')">
+          Delete
+        </button>
       </div>
-    `;
+    </div>
+  `).join("");
+}
+
+/* EDIT ORDER */
+function startEdit(encodedId) {
+  const trackingId = decodeURIComponent(encodedId);
+  const order = allOrders.find(item => item.tracking_id === trackingId);
+
+  if (!order) {
+    showMessage("ordersMessage", "Order could not be found.", "error");
+    return;
   }
 
-  el("trackingSearch").addEventListener("keydown", event => {
-    if (event.key === "Enter") trackOrder();
-  });
+  document.getElementById("editOriginalId").value = order.tracking_id;
+  document.getElementById("editTrackingId").value = order.tracking_id;
+  document.getElementById("editCustomer").value = order.customer_name || "";
+  document.getElementById("editCourier").value = order.courier || "";
+  document.getElementById("editCourierRef").value = order.courier_reference || "";
+  fillStatusOptions("editStatus", order.status);
+  document.getElementById("editLocation").value = order.location || "";
+  document.getElementById("editDelivery").value = order.estimated_delivery || "";
+  document.getElementById("editNote").value = order.note || "";
+  document.getElementById("editEventNote").value = "";
 
+  hideMessage("editMessage");
 
-  // -----------------------------------------
-  // ADMIN LOGIN
-  // -----------------------------------------
+  const section = document.getElementById("editSection");
+  section.classList.remove("hidden");
+  section.scrollIntoView({ behavior:"smooth", block:"start" });
+}
 
-  el("loginForm").addEventListener("submit", async event => {
-    event.preventDefault();
+function cancelEdit() {
+  document.getElementById("editSection").classList.add("hidden");
+  document.getElementById("editOriginalId").value = "";
+  hideMessage("editMessage");
+}
 
-    const email = el("adminEmail").value.trim();
-    const password = el("adminPassword").value;
+/* SAVE EDIT */
+async function saveEdit() {
+  hideMessage("editMessage");
 
-    el("loginButton").disabled = true;
-    showMessage("loginMessage", "Signing in...", "info");
+  const originalId = document.getElementById("editOriginalId").value;
+  const tracking_id = document.getElementById("editTrackingId").value.trim().toUpperCase();
+  const customer_name = document.getElementById("editCustomer").value.trim();
+  const courier = document.getElementById("editCourier").value.trim();
+  const courier_reference = document.getElementById("editCourierRef").value.trim();
+  const status = document.getElementById("editStatus").value;
+  const location = document.getElementById("editLocation").value.trim();
+  const estimated_delivery = document.getElementById("editDelivery").value || null;
+  const note = document.getElementById("editNote").value.trim();
+  const eventNote = document.getElementById("editEventNote").value.trim();
 
-    try {
-      const { data, error } = await db.auth.signInWithPassword({
-        email,
-        password
-      });
-
-      if (error) throw error;
-
-      const user = data.user;
-
-      // Admin permission is checked through Supabase app_metadata.
-      if (user?.app_metadata?.role !== "admin") {
-        await db.auth.signOut();
-        throw new Error("This account is not authorised as an admin.");
-      }
-
-      currentAdmin = user;
-
-      showMessage("loginMessage", "", "info");
-      el("loginForm").reset();
-
-      showAdmin();
-      await loadOrders();
-
-    } catch (error) {
-      console.error(error);
-      showMessage("loginMessage", error.message || "Login failed.", "error");
-    } finally {
-      el("loginButton").disabled = false;
-    }
-  });
-
-
-  async function checkSession() {
-    try {
-      const { data, error } = await db.auth.getSession();
-
-      if (error) throw error;
-
-      const user = data.session?.user;
-
-      if (user?.app_metadata?.role === "admin") {
-        currentAdmin = user;
-        showAdmin();
-        await loadOrders();
-      } else {
-        currentAdmin = null;
-        showCustomer();
-      }
-
-    } catch (error) {
-      console.error(error);
-      showCustomer();
-    }
+  if (!originalId || !tracking_id || !customer_name) {
+    showMessage("editMessage", "Tracking ID and customer name are required.", "error");
+    return;
   }
 
+  const button = document.getElementById("saveEditButton");
+  button.disabled = true;
+  button.textContent = "Saving...";
 
-  async function logout() {
-    await db.auth.signOut();
-    currentAdmin = null;
-    orders = [];
-    el("ordersList").innerHTML = "";
-    showCustomer();
-  }
+  try {
+    const { error } = await db
+      .from("zyra_orders")
+      .update({
+        tracking_id,
+        customer_name,
+        courier,
+        courier_reference,
+        status,
+        location,
+        estimated_delivery,
+        note,
+        updated_at: new Date().toISOString()
+      })
+      .eq("tracking_id", originalId);
 
+    if (error) throw error;
 
-  // -----------------------------------------
-  // CREATE ORDER
-  // -----------------------------------------
+    const oldOrder = allOrders.find(item => item.tracking_id === originalId);
+    const changed =
+      !oldOrder ||
+      oldOrder.status !== status ||
+      oldOrder.location !== location ||
+      Boolean(eventNote);
 
-  el("createOrderForm").addEventListener("submit", async event => {
-    event.preventDefault();
-
-    if (!currentAdmin) return;
-
-    const order = {
-      customer_name: el("newCustomerName").value.trim(),
-      tracking_id: el("newTrackingId").value.trim(),
-      courier: el("newCourier").value.trim() || null,
-      courier_reference: el("newCourierReference").value.trim() || null,
-      status: el("newStatus").value,
-      location: el("newLocation").value.trim() || null,
-      estimated_delivery: el("newEstimatedDelivery").value || null,
-      note: el("newNote").value.trim() || null
-    };
-
-    if (!order.customer_name || !order.tracking_id) {
-      showMessage("createMessage", "Customer name and tracking ID are required.", "error");
-      return;
-    }
-
-    el("createButton").disabled = true;
-    showMessage("createMessage", "Creating order...", "info");
-
-    try {
-      const { error } = await db
-        .from("zyra_orders")
-        .insert(order);
-
-      if (error) throw error;
-
+    if (changed) {
       const { error: eventError } = await db
         .from("zyra_tracking_events")
         .insert({
-          tracking_id: order.tracking_id,
-          status: order.status,
-          location: order.location,
-          note: order.note || "Order created."
+          tracking_id,
+          status,
+          location,
+          note: eventNote || "Order information updated."
         });
 
       if (eventError) {
-        console.error("Tracking history error:", eventError);
-      }
-
-      el("createOrderForm").reset();
-
-      showMessage("createMessage", "Order created successfully.", "success");
-
-      await loadOrders();
-
-    } catch (error) {
-      console.error(error);
-      showMessage("createMessage", error.message || "Unable to create order.", "error");
-    } finally {
-      el("createButton").disabled = false;
-    }
-  });
-
-
-  // -----------------------------------------
-  // LOAD ALL ORDERS
-  // -----------------------------------------
-
-  async function loadOrders() {
-    if (!currentAdmin) return;
-
-    el("ordersList").innerHTML =
-      `<div class="empty">Loading orders...</div>`;
-
-    try {
-      const { data, error } = await db
-        .from("zyra_orders")
-        .select("*")
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-
-      orders = data || [];
-      renderOrders();
-
-    } catch (error) {
-      console.error(error);
-
-      el("ordersList").innerHTML =
-        `<div class="message error">
-          Unable to load orders. Check your Supabase permissions.
-        </div>`;
-    }
-  }
-
-
-  // -----------------------------------------
-  // DISPLAY AND SEARCH ORDERS
-  // -----------------------------------------
-
-  function renderOrders() {
-    const search = el("adminSearch").value.trim().toLowerCase();
-
-    const filtered = orders.filter(order => {
-      const name = (order.customer_name || "").toLowerCase();
-      const id = (order.tracking_id || "").toLowerCase();
-
-      return name.includes(search) || id.includes(search);
-    });
-
-    if (!filtered.length) {
-      el("ordersList").innerHTML =
-        `<div class="empty">No orders found.</div>`;
-      return;
-    }
-
-    el("ordersList").innerHTML = filtered.map(order => `
-      <div class="order-card">
-        <div class="order-top">
-          <div>
-            <h3>${escapeHTML(order.customer_name)}</h3>
-            <div style="font-size:12px;color:var(--muted);">
-              ${escapeHTML(order.tracking_id)}
-            </div>
-          </div>
-
-          <span class="status">${escapeHTML(order.status || "Processing")}</span>
-        </div>
-
-        <div class="details">
-          <div class="detail">
-            <strong>Courier</strong>
-            ${escapeHTML(order.courier || "Not assigned")}
-          </div>
-
-          <div class="detail">
-            <strong>Courier Reference</strong>
-            ${escapeHTML(order.courier_reference || "Not available")}
-          </div>
-
-          <div class="detail">
-            <strong>Location</strong>
-            ${escapeHTML(order.location || "Not updated")}
-          </div>
-
-          <div class="detail">
-            <strong>Estimated Delivery</strong>
-            ${escapeHTML(formatDate(order.estimated_delivery))}
-          </div>
-        </div>
-
-        <div class="actions">
-          <button class="secondary"
-            onclick="openEdit('${escapeHTML(order.tracking_id)}')">
-            Edit Order
-          </button>
-
-          <button class="light"
-            onclick="shareOrder('${escapeHTML(order.tracking_id)}')">
-            Share WhatsApp Link
-          </button>
-
-          <button class="danger"
-            onclick="deleteOrder('${escapeHTML(order.tracking_id)}')">
-            Delete
-          </button>
-        </div>
-      </div>
-    `).join("");
-  }
-
-
-  // -----------------------------------------
-  // EDIT ORDER
-  // -----------------------------------------
-
-  function openEdit(trackingId) {
-    const order = orders.find(item => item.tracking_id === trackingId);
-
-    if (!order) return;
-
-    el("editOriginalTrackingId").value = order.tracking_id;
-    el("editCustomerName").value = order.customer_name || "";
-    el("editTrackingId").value = order.tracking_id || "";
-    el("editCourier").value = order.courier || "";
-    el("editCourierReference").value = order.courier_reference || "";
-    el("editStatus").value = order.status || "Processing";
-    el("editLocation").value = order.location || "";
-    el("editEstimatedDelivery").value =
-      order.estimated_delivery ? order.estimated_delivery.slice(0, 10) : "";
-    el("editNote").value = order.note || "";
-    el("editEventNote").value = "";
-
-    showMessage("editMessage", "", "info");
-
-    el("editPanel").classList.remove("hidden");
-    el("editPanel").scrollIntoView({ behavior: "smooth" });
-  }
-
-
-  function closeEdit() {
-    el("editPanel").classList.add("hidden");
-    el("editOrderForm").reset();
-  }
-
-
-  el("editOrderForm").addEventListener("submit", async event => {
-    event.preventDefault();
-
-    if (!currentAdmin) return;
-
-    const originalTrackingId = el("editOriginalTrackingId").value;
-
-    const updatedOrder = {
-      customer_name: el("editCustomerName").value.trim(),
-      tracking_id: el("editTrackingId").value.trim(),
-      courier: el("editCourier").value.trim() || null,
-      courier_reference: el("editCourierReference").value.trim() || null,
-      status: el("editStatus").value,
-      location: el("editLocation").value.trim() || null,
-      estimated_delivery: el("editEstimatedDelivery").value || null,
-      note: el("editNote").value.trim() || null,
-      updated_at: new Date().toISOString()
-    };
-
-    if (!updatedOrder.customer_name || !updatedOrder.tracking_id) {
-      showMessage("editMessage", "Customer name and tracking ID are required.", "error");
-      return;
-    }
-
-    el("saveEditButton").disabled = true;
-    showMessage("editMessage", "Saving changes...", "info");
-
-    try {
-      const { error } = await db
-        .from("zyra_orders")
-        .update(updatedOrder)
-        .eq("tracking_id", originalTrackingId);
-
-      if (error) throw error;
-
-      const eventNote = el("editEventNote").value.trim();
-
-      const { error: eventError } = await db
-        .from("zyra_tracking_events")
-        .insert({
-          tracking_id: updatedOrder.tracking_id,
-          status: updatedOrder.status,
-          location: updatedOrder.location,
-          note: eventNote || "Order details updated."
-        });
-
-      if (eventError) {
-        console.error("Tracking event error:", eventError);
         showMessage(
           "editMessage",
-          "Order saved, but the tracking history update failed. Check your database permissions and tracking ID relationship.",
+          "Order details were saved, but the tracking history update failed.\n" +
+          explainError(eventError),
           "error"
         );
       } else {
-        showMessage("editMessage", "Order updated successfully.", "success");
+        showMessage("editMessage", "Order and tracking history updated successfully.", "success");
       }
-
-      await loadOrders();
-
-      if (!eventError) {
-        setTimeout(closeEdit, 700);
-      }
-
-    } catch (error) {
-      console.error(error);
-      showMessage("editMessage", error.message || "Unable to update order.", "error");
-    } finally {
-      el("saveEditButton").disabled = false;
+    } else {
+      showMessage("editMessage", "Order updated successfully.", "success");
     }
-  });
 
+    await loadOrders();
 
-  // -----------------------------------------
-  // DELETE ORDER
-  // -----------------------------------------
+    setTimeout(() => cancelEdit(), 1000);
 
-  async function deleteOrder(trackingId) {
-    if (!currentAdmin) return;
+  } catch (error) {
+    showMessage("editMessage", "Could not update order.\n" + explainError(error), "error");
+  } finally {
+    button.disabled = false;
+    button.textContent = "Save Changes";
+  }
+}
 
-    const confirmed = confirm(
-      "Are you sure you want to delete this order and its tracking history?"
-    );
+/* DELETE ORDER */
+async function deleteOrder(encodedId) {
+  const trackingId = decodeURIComponent(encodedId);
 
-    if (!confirmed) return;
-
-    try {
-      const { error } = await db
-        .from("zyra_orders")
-        .delete()
-        .eq("tracking_id", trackingId);
-
-      if (error) throw error;
-
-      await loadOrders();
-
-    } catch (error) {
-      console.error(error);
-      alert(error.message || "Unable to delete order.");
-    }
+  if (!confirm(`Are you sure you want to delete order ${trackingId}? This cannot be undone.`)) {
+    return;
   }
 
+  try {
+    const { error } = await db
+      .from("zyra_orders")
+      .delete()
+      .eq("tracking_id", trackingId);
 
-  // -----------------------------------------
-  // WHATSAPP TRACKING LINK
-  // -----------------------------------------
+    if (error) throw error;
 
-  function shareOrder(trackingId) {
-    const trackingUrl =
-      window.location.origin +
-      window.location.pathname +
-      "?track=" +
-      encodeURIComponent(trackingId);
+    showMessage("ordersMessage", "Order deleted successfully.", "success");
 
-    const message =
-      `Hello! Here is your Zyra.lk order tracking link:\n${trackingUrl}\n\nTracking ID: ${trackingId}`;
-
-    const whatsappUrl =
-      "https://wa.me/?text=" + encodeURIComponent(message);
-
-    window.open(whatsappUrl, "_blank", "noopener,noreferrer");
-  }
-
-
-  // -----------------------------------------
-  // AUTH SESSION LISTENER
-  // -----------------------------------------
-
-  db.auth.onAuthStateChange((event, session) => {
-    if (event === "SIGNED_OUT") {
-      currentAdmin = null;
-      orders = [];
-      showCustomer();
+    if (document.getElementById("editOriginalId").value === trackingId) {
+      cancelEdit();
     }
 
-    if (session?.user?.app_metadata?.role === "admin") {
-      currentAdmin = session.user;
-    }
-  });
+    await loadOrders();
 
-
-  // -----------------------------------------
-  // INITIAL PAGE LOAD
-  // -----------------------------------------
-
-  showCustomer();
-  checkSession();
-
-  // Allow a customer to open a shared tracking link.
-  const params = new URLSearchParams(window.location.search);
-  const sharedTrackingId = params.get("track");
-
-  if (sharedTrackingId) {
-    el("trackingSearch").value = sharedTrackingId;
-    trackOrder();
+  } catch (error) {
+    showMessage("ordersMessage", "Could not delete order.\n" + explainError(error), "error");
   }
+}
 
+/* WHATSAPP TRACKING SHARE */
+function shareTracking(encodedId) {
+  const trackingId = decodeURIComponent(encodedId);
+  const trackingUrl = new URL(window.location.href);
+  trackingUrl.search = "";
+  trackingUrl.hash = "";
+  trackingUrl.searchParams.set("track", trackingId);
+
+  const message =
+    `Hello! You can track your Zyra.lk order here:\n${trackingUrl.toString()}\n\nTracking ID: ${trackingId}`;
+
+  const whatsappUrl =
+    "https://wa.me/?text=" + encodeURIComponent(message);
+
+  window.open(whatsappUrl, "_blank", "noopener,noreferrer");
+}
+
+/* RESTORE ADMIN SESSION */
+db.auth.onAuthStateChange((_event, session) => {
+  const user = session?.user;
+
+  if (user?.app_metadata?.role === "admin") {
+    currentUser = user;
+    showDashboard();
+  } else if (!user) {
+    currentUser = null;
+  }
+});
+
+checkSession();
 </script>
 
 </body>
