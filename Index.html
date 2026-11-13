@@ -1,0 +1,525 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zyra.lk | Track Your Order</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --maroon:#681F32;
+  --yellow:#EBD38F;
+  --ivory:#F5EBD8;
+  --white:#fffdf8;
+  --ink:#34252a;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--ivory);
+  color:var(--ink);
+  font-family:Arial,sans-serif;
+}
+header{
+  background:var(--maroon);
+  color:var(--ivory);
+  padding:22px 7%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.logo{
+  font-family:Georgia,serif;
+  font-size:27px;
+  letter-spacing:2px;
+}
+nav button{
+  background:transparent;
+  border:1px solid var(--yellow);
+  color:var(--yellow);
+  padding:10px 16px;
+  border-radius:5px;
+  cursor:pointer;
+}
+main{
+  max-width:850px;
+  margin:55px auto;
+  padding:20px;
+}
+.hero{text-align:center;margin-bottom:35px}
+.hero h1{
+  font-family:Georgia,serif;
+  color:var(--maroon);
+  font-size:42px;
+  font-weight:normal;
+}
+.hero p{line-height:1.7;color:#76636a}
+.card{
+  background:var(--white);
+  padding:30px;
+  border-radius:12px;
+  box-shadow:0 5px 25px #681f3210;
+  margin-bottom:22px;
+}
+input,select,textarea{
+  width:100%;
+  padding:13px;
+  margin:8px 0 16px;
+  border:1px solid #d8c9b8;
+  border-radius:6px;
+  background:white;
+  font-size:15px;
+}
+textarea{min-height:75px}
+label{font-size:13px;font-weight:bold;color:var(--maroon)}
+.primary{
+  background:var(--maroon);
+  color:white;
+  border:0;
+  padding:14px 22px;
+  border-radius:6px;
+  cursor:pointer;
+  width:100%;
+  font-weight:bold;
+}
+.secondary{
+  background:var(--yellow);
+  color:var(--maroon);
+  border:0;
+  padding:11px 16px;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:bold;
+}
+.hidden{display:none!important}
+.status{
+  display:inline-block;
+  background:#f3e5c3;
+  color:var(--maroon);
+  padding:8px 13px;
+  border-radius:30px;
+  font-weight:bold;
+  font-size:13px;
+}
+.event{
+  border-left:2px solid var(--yellow);
+  padding:5px 0 18px 18px;
+  margin-left:5px;
+}
+.event strong{color:var(--maroon)}
+.small{font-size:13px;color:#806f73}
+.order{
+  border:1px solid #eadfce;
+  padding:17px;
+  border-radius:8px;
+  margin:12px 0;
+}
+.order button{margin:5px 4px 0 0}
+footer{
+  text-align:center;
+  padding:25px;
+  color:#806f73;
+  font-size:12px;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">ZYRA.LK</div>
+  <nav>
+    <button onclick="showAdmin()">ADMIN</button>
+    <button onclick="showCustomer()">TRACK ORDER</button>
+  </nav>
+</header>
+
+<main>
+<section id="customerPage">
+  <div class="hero">
+    <h1>Hello, Beautiful.</h1>
+    <p>Something lovely is on its way to you.<br>
+    Every little parcel carries a little happiness. Let's find yours.</p>
+  </div>
+
+  <div class="card">
+    <h2 style="color:var(--maroon)">Track your order</h2>
+    <p class="small">Enter your Zyra tracking ID below.</p>
+    <label>YOUR TRACKING ID</label>
+    <input id="trackingInput" placeholder="ZYR-2026-XXXXX">
+    <button class="primary" onclick="trackOrder()">TRACK MY ORDER</button>
+    <p id="trackMessage" class="small"></p>
+  </div>
+
+  <div id="trackingResult" class="card hidden"></div>
+</section>
+
+<section id="adminPage" class="hidden">
+  <div class="hero">
+    <h1>Admin Portal</h1>
+    <p>Manage Zyra.lk customer deliveries.</p>
+  </div>
+
+  <div id="loginCard" class="card">
+    <h2>Admin Login</h2>
+    <label>EMAIL</label>
+    <input id="adminEmail" type="email" placeholder="Admin email">
+    <label>PASSWORD</label>
+    <input id="adminPassword" type="password" placeholder="Password">
+    <button class="primary" onclick="login()">LOGIN</button>
+    <p id="loginMessage" class="small"></p>
+  </div>
+
+  <div id="dashboard" class="hidden">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <h2>Create New Order</h2>
+        <button class="secondary" onclick="logout()">Logout</button>
+      </div>
+
+      <label>COURIER</label>
+      <select id="courier">
+        <option>Royal Express</option>
+        <option>Straightway Couriers</option>
+      </select>
+
+      <label>PRIVATE COURIER REFERENCE</label>
+      <input id="courierReference" placeholder="Courier reference (admin only)">
+
+      <label>INITIAL LOCATION</label>
+      <input id="location" placeholder="e.g. Colombo">
+
+      <label>ESTIMATED DELIVERY</label>
+      <input id="eta" type="date">
+
+      <label>ORDER NOTE</label>
+      <textarea id="note" placeholder="Optional delivery note"></textarea>
+
+      <button class="primary" onclick="createOrder()">CREATE ORDER</button>
+      <p id="createMessage" class="small"></p>
+    </div>
+
+    <div class="card">
+      <h2>Manage Orders</h2>
+      <input id="searchOrder" placeholder="Search tracking ID..." oninput="renderOrders()">
+      <button class="secondary" onclick="loadOrders()">Refresh Orders</button>
+      <div id="ordersList"></div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>© 2026 Zyra.lk · Every parcel, a little happiness.</footer>
+
+<script>
+const SUPABASE_URL = "https://rouysaipjmzmvoegtign.supabase.co";
+const SUPABASE_KEY = "sb_publishable_XmZ0RqmzN4uAEtAhJcFgMg_CQ-HWv2D";
+
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+const statuses = [
+  "Order Confirmed",
+  "Preparing Your Order",
+  "Packed",
+  "Handed Over to Courier",
+  "In Transit",
+  "Arrived at Local Facility",
+  "Out for Delivery",
+  "Delivered",
+  "On Hold",
+  "Delivery Attempted",
+  "Returned"
+];
+
+let orders = [];
+
+function showCustomer(){
+  document.getElementById("customerPage").classList.remove("hidden");
+  document.getElementById("adminPage").classList.add("hidden");
+}
+
+function showAdmin(){
+  document.getElementById("customerPage").classList.add("hidden");
+  document.getElementById("adminPage").classList.remove("hidden");
+}
+
+async function login(){
+  const email = document.getElementById("adminEmail").value.trim();
+  const password = document.getElementById("adminPassword").value;
+
+  const {error} = await db.auth.signInWithPassword({email,password});
+
+  if(error){
+    document.getElementById("loginMessage").textContent = error.message;
+    return;
+  }
+
+  document.getElementById("loginCard").classList.add("hidden");
+  document.getElementById("dashboard").classList.remove("hidden");
+  loadOrders();
+}
+
+async function logout(){
+  await db.auth.signOut();
+  document.getElementById("dashboard").classList.add("hidden");
+  document.getElementById("loginCard").classList.remove("hidden");
+}
+
+async function createOrder(){
+  const courier = document.getElementById("courier").value;
+  const courierReference = document.getElementById("courierReference").value.trim();
+  const location = document.getElementById("location").value.trim();
+  const eta = document.getElementById("eta").value;
+  const note = document.getElementById("note").value.trim();
+
+  const trackingId = "ZYR-2026-" +
+    crypto.randomUUID().replace(/-/g,"").slice(0,5).toUpperCase();
+
+  const {data,error} = await db.from("zyra_orders").insert({
+    tracking_id:trackingId,
+    courier,
+    courier_reference:courierReference,
+    status:"Order Confirmed",
+    location,
+    estimated_delivery:eta,
+    note
+  }).select().single();
+
+  if(error){
+    document.getElementById("createMessage").textContent = error.message;
+    return;
+  }
+
+  const {error:eventError} = await db.from("zyra_tracking_events").insert({
+    order_id:data.id,
+    status:"Order Confirmed",
+    location,
+    note
+  });
+
+  if(eventError){
+    document.getElementById("createMessage").textContent =
+      "Order created, but its first history event could not be saved: " + eventError.message;
+    return;
+  }
+
+  document.getElementById("createMessage").textContent =
+    "Order created successfully: " + trackingId;
+
+  document.getElementById("courierReference").value="";
+  document.getElementById("location").value="";
+  document.getElementById("eta").value="";
+  document.getElementById("note").value="";
+
+  loadOrders();
+}
+
+async function loadOrders(){
+  const {data,error} = await db.from("zyra_orders")
+    .select("*")
+    .order("created_at",{ascending:false});
+
+  if(error){
+    document.getElementById("ordersList").textContent=error.message;
+    return;
+  }
+
+  orders=data||[];
+  renderOrders();
+}
+
+function renderOrders(){
+  const query=document.getElementById("searchOrder").value.toUpperCase();
+  const list=document.getElementById("ordersList");
+
+  const filtered=orders.filter(o=>
+    o.tracking_id.toUpperCase().includes(query)
+  );
+
+  list.innerHTML="";
+
+  if(!filtered.length){
+    list.textContent="No orders found.";
+    return;
+  }
+
+  filtered.forEach(o=>{
+    const div=document.createElement("div");
+    div.className="order";
+
+    const heading=document.createElement("strong");
+    heading.textContent=o.tracking_id;
+
+    const info=document.createElement("p");
+    info.textContent=o.courier+" · "+o.status;
+
+    const update=document.createElement("button");
+    update.className="secondary";
+    update.textContent="Update Order";
+    update.onclick=()=>updateOrder(o);
+
+    const share=document.createElement("button");
+    share.className="secondary";
+    share.textContent="Share Tracking";
+    share.onclick=()=>shareOrder(o.tracking_id);
+
+    div.append(heading,info,update,share);
+    list.appendChild(div);
+  });
+}
+
+async function updateOrder(order){
+  const status=prompt("Enter status:\n"+statuses.join("\n"),order.status);
+  if(!status) return;
+
+  if(!statuses.includes(status)){
+    alert("Please enter one of the listed statuses exactly.");
+    return;
+  }
+
+  const location=prompt("Enter current location:",order.location||"");
+  if(location===null) return;
+
+  const eta=prompt("Estimated delivery date (YYYY-MM-DD):",
+    order.estimated_delivery||"");
+  if(eta===null) return;
+
+  const note=prompt("Enter a customer note:",order.note||"");
+  if(note===null) return;
+
+  const {error}=await db.from("zyra_orders").update({
+    status,
+    location,
+    estimated_delivery:eta||null,
+    note,
+    updated_at:new Date().toISOString()
+  }).eq("id",order.id);
+
+  if(error){
+    alert(error.message);
+    return;
+  }
+
+  const {error:eventError}=await db.from("zyra_tracking_events").insert({
+    order_id:order.id,
+    status,
+    location,
+    note
+  });
+
+  if(eventError){
+    alert("Order updated, but event history could not be saved: "+eventError.message);
+  }
+
+  loadOrders();
+}
+
+function shareOrder(trackingId){
+  const url=location.origin+location.pathname;
+  const message=
+    "Hello! Your Zyra.lk order is on its way. Track your parcel here:\n"+
+    url+"\nTracking ID: "+trackingId;
+
+  window.open(
+    "https://wa.me/?text="+encodeURIComponent(message),
+    "_blank"
+  );
+}
+
+async function trackOrder(){
+  const id=document.getElementById("trackingInput").value.trim();
+  const message=document.getElementById("trackMessage");
+  const result=document.getElementById("trackingResult");
+
+  result.classList.add("hidden");
+  message.textContent="";
+
+  if(!id){
+    message.textContent="Please enter your tracking ID.";
+    return;
+  }
+
+  message.textContent="Finding your parcel...";
+
+  const {data,error}=await db.rpc("track_zyra_order",{
+    p_tracking_id:id
+  });
+
+  if(error){
+    message.textContent="Unable to track this order. Please try again.";
+    return;
+  }
+
+  if(!data || data.error==="not_found"){
+    message.textContent="We couldn't find that tracking ID. Please check it.";
+    return;
+  }
+
+  message.textContent="";
+  result.classList.remove("hidden");
+  result.innerHTML="";
+
+  const title=document.createElement("h2");
+  title.textContent="Your parcel is on its way";
+
+  const idLine=document.createElement("p");
+  idLine.textContent="Tracking ID: "+data.tracking_id;
+
+  const status=document.createElement("p");
+  status.className="status";
+  status.textContent=data.status;
+
+  const courier=document.createElement("p");
+  courier.textContent="Courier: "+data.courier;
+
+  const locationLine=document.createElement("p");
+  locationLine.textContent="Current location: "+(data.location||"Not updated");
+
+  const eta=document.createElement("p");
+  eta.textContent="Estimated delivery: "+(data.estimated_delivery||"To be confirmed");
+
+  const note=document.createElement("p");
+  note.textContent=data.note||"";
+
+  const historyTitle=document.createElement("h3");
+  historyTitle.textContent="Delivery Updates";
+
+  result.append(title,idLine,status,courier,locationLine,eta,note,historyTitle);
+
+  (data.events||[]).forEach(event=>{
+    const item=document.createElement("div");
+    item.className="event";
+
+    const heading=document.createElement("strong");
+    heading.textContent=event.status;
+
+    const details=document.createElement("p");
+    details.textContent=(event.location||"Location pending")+
+      (event.note?" · "+event.note:"");
+
+    const time=document.createElement("p");
+    time.className="small";
+    time.textContent=new Date(event.created_at).toLocaleString();
+
+    item.append(heading,details,time);
+    result.appendChild(item);
+  });
+}
+
+// Restore an existing admin session after refreshing the page.
+db.auth.getSession().then(({data})=>{
+  if(data.session){
+    showAdmin();
+    document.getElementById("loginCard").classList.add("hidden");
+    document.getElementById("dashboard").classList.remove("hidden");
+    loadOrders();
+  }
+});
+
+if(location.hash==="#admin") showAdmin();
+</script>
+</body>
+</html>
